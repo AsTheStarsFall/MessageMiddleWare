@@ -1,0 +1,11 @@
+{
+  "groups": [
+    {
+      "name": "rabbitmq-config.properties",
+      "type": "com.tianhy.study.config.RabbitmqConfig",
+      "sourceType": "com.tianhy.study.config.RabbitmqConfig"
+    }
+  ],
+  "properties": [],
+  "hints": []
+}
