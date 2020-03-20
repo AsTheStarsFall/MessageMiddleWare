@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/rabbit
+        http://www.springframework.org/schema/rabbit/spring-rabbit-1.2.xsd">
+
+    <!-- bean definitions here -->
+
+    <!--ConnectionFactory-->
+    <rabbit:connection-factory id="connectionFactory" username="admin" password="123456" host="119.23.249.97"
+                               port="5672" virtual-host="/"/>
+
+    <!--    <rabbit:connection-factory id="connectionFactory" addresses="amqp://admin:123456@119.23.249.97:5672"/>-->
+
+    <rabbit:admin id="connectAdmin" connection-factory="connectionFactory"/>
+
+    <!--定义queue-->
+    <rabbit:queue name="SPRING_QUEUE" durable="true" exclusive="false" auto-delete="false" declared-by="connectAdmin"/>
+
+    <!--定义交换器与类型，并绑定-->
+    <rabbit:direct-exchange name="SPRING_DIRECT_EXCHANGE" durable="true" auto-delete="false" declared-by="connectAdmin">
+        <rabbit:bindings>
+            <rabbit:binding queue="SPRING_QUEUE" key="SPRING_KEY"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
+    <!--定义rabbit template用于数据的接收和发送 -->
+    <rabbit:template id="rabbitTemplate" connection-factory="connectionFactory" exchange="SPRING_DIRECT_EXCHANGE"/>
+
+    <!--消息接收者 Consumer-->
+    <bean id="messageReceiver" class="com.tianhy.study.consumer.MessageConsumer"></bean>
+
+    <!--queue listener 观察 监听模式 当有消息到达时会通知监听在对应的队列上的监听对象 -->
+    <rabbit:listener-container connection-factory="connectionFactory">
+        <rabbit:listener queues="SPRING_QUEUE" ref="messageReceiver"/>
+    </rabbit:listener-container>
+</beans>
